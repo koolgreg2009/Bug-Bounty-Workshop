@@ -3,6 +3,22 @@ from django import forms
 from .models import Preset
 
 
+class MultipleImageInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleImageField(forms.ImageField):
+    widget = MultipleImageInput
+
+    def clean(self, data, initial=None):
+        single_image_field = forms.ImageField()
+        if not data:
+            return []
+        if not isinstance(data, (list, tuple)):
+            data = [data]
+        return [single_image_field.clean(item, initial) for item in data]
+
+
 class UploadForm(forms.Form):
     image = forms.ImageField()
 
@@ -23,5 +39,5 @@ class PresetImportForm(forms.Form):
 
 
 class BatchUploadForm(forms.Form):
-    images = forms.FileField(widget=forms.ClearableFileInput(attrs={"allow_multiple_selected": True}))
+    images = MultipleImageField()
     make_public = forms.BooleanField(required=False, label="Make all images public")

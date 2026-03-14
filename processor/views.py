@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -140,6 +141,8 @@ def preset_import_view(request):
                     config=config,
                 )
                 return redirect("preset_list")
+            except IntegrityError:
+                form.add_error("json_data", "You already have a preset with that name.")
             except (json.JSONDecodeError, ValidationError) as e:
                 form.add_error("json_data", str(e))
     else:
