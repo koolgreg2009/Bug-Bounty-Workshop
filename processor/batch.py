@@ -13,7 +13,10 @@ def process_batch(batch_id):
     batch.save()
 
     images = ImageUpload.objects.filter(batch=batch)
-    for i, upload in enumerate(images):
+    processed_count = 0
+    failed = False
+
+    for upload in images:
         try:
             original_path = upload.original.path
             filename = f"halftone_{upload.pk}.png"
@@ -25,10 +28,12 @@ def process_batch(batch_id):
             upload.processed = f"processed/{filename}"
             upload.save()
 
-            batch.processed_count = i + 1
+            processed_count += 1
+            batch.processed_count = processed_count
             batch.save()
         except Exception:
+            failed = True
             continue
 
-    batch.status = "completed"
+    batch.status = "failed" if failed else "completed"
     batch.save()

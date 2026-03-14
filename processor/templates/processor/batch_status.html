@@ -38,8 +38,6 @@
 
         if (!data.completed) {
             setTimeout(poll, 2000);
-        } else {
-            location.reload();
         }
     })
     .catch(() => setTimeout(poll, 5000));
